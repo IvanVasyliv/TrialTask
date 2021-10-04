@@ -1,0 +1,7 @@
+com\intellias\api\Role.class
+com\intellias\api\User.class
+com\intellias\resources\UserController.class
+com\intellias\TrialTaskApplication.class
+com\intellias\db\UsersDAO.class
+com\intellias\db\RolesDAO.class
+com\intellias\TrialTaskConfiguration.class
