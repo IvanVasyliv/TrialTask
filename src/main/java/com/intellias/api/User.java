@@ -1,15 +1,13 @@
 package com.intellias.api;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.hibernate.validator.constraints.Length;
 
 public class User {
-    @NotNull
-    private Long id;
+    private long id;
     @NotBlank @Length(min = 2, max = 30)
     private String name;
 

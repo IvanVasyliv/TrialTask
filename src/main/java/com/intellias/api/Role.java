@@ -1,23 +1,20 @@
 package com.intellias.api;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.hibernate.validator.constraints.Length;
 
 public class Role {
-    @NotNull
     private long id;
-    @NotNull
-    private long userId;
     @NotBlank @Length(min = 2, max = 40)
     private String name;
 
     public Role() {}
 
-    public Role(int id, String name) {
+    public Role(@Nullable long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -29,15 +26,6 @@ public class Role {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    @JsonProperty
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
     }
 
     @JsonProperty

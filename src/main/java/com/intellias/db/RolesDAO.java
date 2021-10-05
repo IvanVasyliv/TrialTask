@@ -7,6 +7,7 @@ import com.intellias.api.Role;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
@@ -15,8 +16,8 @@ public interface RolesDAO {
     "name VARCHAR(40) NOT NULL, PRIMARY KEY (id), FOREIGN KEY (user_id) REFERENCES users (id))")
     void createTable();
 
-    @SqlUpdate("INSERT INTO roles (id, user_id, name) VALUES (:id, :user_id, :name)")
-    void insertRole(@BindBean Role roles);
+    @SqlBatch("INSERT INTO roles (id, user_id, name) VALUES (:role.id, :user_id, :role.name)")
+    void insertUserRoles(@Bind("user_id") long userId, @BindBean("role") Role... roles);
 
     @SqlUpdate("UPDATE TABLE roles SET name=:name WHERE id=:id")
     void updateRole(@BindBean Role role);

@@ -71,13 +71,34 @@ public class UserController {
             }
             return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
         }
-        return Response.ok(jdbi.withExtension(UsersDAO.class, dao -> dao.insertUser(user))).build();
+        jdbi.useExtension(UsersDAO.class, dao -> dao.insertUser(user));
+        return Response.ok(user).build();
+    }
+
+    @POST
+    @Path("/{id}/roles")
+    public Response grantRole(@PathParam("id") long id, Role role) throws URISyntaxException {
+        User user = jdbi.withExtension(UsersDAO.class, dao -> dao.getUserById(id));
+        if (user==null) 
+            return Response.status(Status.NOT_FOUND).build();
+        Set<ConstraintViolation<Role>> violations = validator.validate(role);
+        if (violations.size() > 0) {
+            ArrayList<String> validationMessages = new ArrayList<String>();
+            for (ConstraintViolation<Role> violation : violations) {
+                validationMessages.add(violation.getPropertyPath().toString() + ": " + violation.getMessage());
+            }
+            return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
+        }
+        jdbi.useExtension(RolesDAO.class, dao -> dao.insertUserRoles(id, role));
+        return Response.ok(role).build();
     }
  
     @PUT
     @Path("/{id}")
     public Response updateUserById(@PathParam("id") Integer id, User user) {
-        // validation
+        User existingUser = jdbi.withExtension(UsersDAO.class, dao -> dao.getUserById(id));
+        if (existingUser==null)
+            return Response.status(Status.NOT_FOUND).build();
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         if (violations.size() > 0) {
             ArrayList<String> validationMessages = new ArrayList<String>();
@@ -86,11 +107,7 @@ public class UserController {
             }
             return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
         }
-        User result = jdbi.withExtension(UsersDAO.class, dao -> dao.updateUser(user));
-        if (result != null) {
-            return Response.ok(result).build();
-        } else
-            return Response.status(Status.NOT_FOUND).build();
+        return Response.ok(user).build();
     }
  
     @DELETE
