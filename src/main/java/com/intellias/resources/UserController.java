@@ -1,5 +1,6 @@
 package com.intellias.resources;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,10 +44,14 @@ public class UserController {
 
     @GET
     @Path("/{id}")
-    public Response getUserById(@PathParam("id") Integer id) {
+    public Response getUserById(@PathParam("id") long id) {
         User user = jdbi.withExtension(UsersDAO.class, dao -> dao.getUserById(id));
-        if (user != null)
-            return Response.ok(user).build();
+        if (user != null) {
+            ArrayList<Object> serialiseList = new ArrayList<Object>();
+            serialiseList.add(user);
+            serialiseList.add(jdbi.withExtension(RolesDAO.class, dao -> dao.listUserRoles(id)));
+            return Response.ok(serialiseList).build();
+        }
         else
             return Response.status(Status.NOT_FOUND).build();
     }
@@ -71,15 +76,14 @@ public class UserController {
             }
             return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
         }
-        jdbi.useExtension(UsersDAO.class, dao -> dao.insertUser(user));
-        return Response.ok(user).build();
+        long id = jdbi.withExtension(UsersDAO.class, dao -> dao.insertUser(user));
+        return Response.created(new URI(Long.toString(id))).build();
     }
 
     @POST
     @Path("/{id}/roles")
     public Response grantRole(@PathParam("id") long id, Role role) throws URISyntaxException {
-        User user = jdbi.withExtension(UsersDAO.class, dao -> dao.getUserById(id));
-        if (user==null) 
+        if (!jdbi.withExtension(UsersDAO.class, dao -> dao.userExists(id))) 
             return Response.status(Status.NOT_FOUND).build();
         Set<ConstraintViolation<Role>> violations = validator.validate(role);
         if (violations.size() > 0) {
@@ -90,14 +94,13 @@ public class UserController {
             return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
         }
         jdbi.useExtension(RolesDAO.class, dao -> dao.insertUserRoles(id, role));
-        return Response.ok(role).build();
+        return Response.accepted().build();
     }
  
     @PUT
     @Path("/{id}")
     public Response updateUserById(@PathParam("id") Integer id, User user) {
-        User existingUser = jdbi.withExtension(UsersDAO.class, dao -> dao.getUserById(id));
-        if (existingUser==null)
+        if (!jdbi.withExtension(UsersDAO.class, dao -> dao.userExists(id)))
             return Response.status(Status.NOT_FOUND).build();
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         if (violations.size() > 0) {
@@ -107,16 +110,16 @@ public class UserController {
             }
             return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
         }
-        return Response.ok(user).build();
+        jdbi.useExtension(UsersDAO.class, dao-> dao.updateUser(user));
+        return Response.accepted().build();
     }
  
     @DELETE
     @Path("/{id}")
     public Response removeUserById(@PathParam("id") Integer id) {
-        User user = jdbi.withExtension(UsersDAO.class, dao -> dao.getUserById(id));
-        if (user != null) {
+        if (jdbi.withExtension(UsersDAO.class, dao -> dao.userExists(id))) {
             jdbi.useExtension(UsersDAO.class, dao -> dao.deleteUser(id));
-            return Response.ok().build();
+            return Response.accepted().build();
         } else
             return Response.status(Status.NOT_FOUND).build();
     }

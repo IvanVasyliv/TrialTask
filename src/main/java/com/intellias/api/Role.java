@@ -1,11 +1,12 @@
 package com.intellias.api;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.hibernate.validator.constraints.Length;
+import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
 public class Role {
     private long id;
@@ -14,12 +15,12 @@ public class Role {
 
     public Role() {}
 
-    public Role(@Nullable long id, String name) {
-        this.id = id;
+    @JdbiConstructor
+    public Role(String name) {
         this.name = name;
     }
 
-    @JsonProperty
+    @JsonIgnore
     public long getId() {
         return id;
     }
