@@ -10,9 +10,11 @@ import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import ru.vyarus.guicey.jdbi3.installer.repository.JdbiRepository;
 
+@JdbiRepository
 public interface RolesDAO {
-    @SqlUpdate("CREATE TABLE roles (id SERIAL, user_id BIGINT UNSIGNED NOT NULL, "+
+    @SqlUpdate("CREATE TABLE roles (id SERIAL, user_id BIGINT NOT NULL, "+
     "name VARCHAR(40) NOT NULL, PRIMARY KEY (id), FOREIGN KEY (user_id) REFERENCES users (id))")
     void createTable();
 

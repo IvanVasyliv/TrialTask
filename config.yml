@@ -1,8 +1,8 @@
 database:
-  driverClass: com.mysql.cj.jdbc.Driver
+  driverClass: org.postgresql.Driver
   user: tester
   password: thisisatest
-  url: jdbc:mysql://localhost:3306/test
+  url: jdbc:postgresql://localhost:5432/test
 logging:
   level: INFO
   loggers:
