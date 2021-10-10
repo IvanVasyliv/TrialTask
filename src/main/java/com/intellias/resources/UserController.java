@@ -22,7 +22,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import org.jdbi.v3.core.Jdbi;
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -81,20 +80,22 @@ public class UserController {
 
     @POST
     @Path("/{id}/roles")
-    public Response grantRole(@PathParam("id") long id, Role role) {
+    public Response grantRoles(@PathParam("id") long id, Role... roles) {
         if (usersDAO.userExists(id)) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        Set<ConstraintViolation<Role>> violations = validator.validate(role);
-        if (violations.size() > 0) {
-            ArrayList<String> validationMessages = new ArrayList<>();
-            for (ConstraintViolation<Role> violation : violations) {
-                validationMessages.add(violation.getPropertyPath().toString() + ": " + violation.getMessage());
+        for (Role role : roles) {
+            Set<ConstraintViolation<Role>> violations = validator.validate(role);
+            if (violations.size() > 0) {
+                ArrayList<String> validationMessages = new ArrayList<>();
+                for (ConstraintViolation<Role> violation : violations) {
+                    validationMessages.add(violation.getPropertyPath().toString() + ": " + violation.getMessage());
+                }
+                return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
             }
-            return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
         }
-        rolesDAO.insertUserRoles(id, role);
-        return Response.accepted().build();
+        rolesDAO.insertUserRoles(id, roles);
+        return Response.accepted().entity(usersDAO.getUserById(id)).build();
     }
 
     @PUT
@@ -111,8 +112,9 @@ public class UserController {
             }
             return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
         }
+        user.setId(id);
         usersDAO.updateUser(user);
-        return Response.accepted().build();
+        return Response.accepted().entity(user).build();
     }
 
     @DELETE

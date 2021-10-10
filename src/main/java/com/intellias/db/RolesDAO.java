@@ -28,14 +28,11 @@ public interface RolesDAO {
     void deleteRole(@Bind("id") long id);
 
     @SqlQuery("SELECT * FROM roles ORDER BY name")
-    @RegisterBeanMapper(Role.class)
     List<Role> listRoles();
 
     @SqlQuery("SELECT * FROM roles WHERE id=:id")
-    @RegisterBeanMapper(Role.class)
     Role getRoleById(@Bind("id") long id);
 
     @SqlQuery("SELECT * FROM roles WHERE user_id=:id")
-    @RegisterBeanMapper(Role.class)
     List<Role> listUserRoles(@Bind("id") long id);
 }
