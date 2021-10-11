@@ -37,4 +37,13 @@ public class Role {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o.getClass()!=this.getClass())
+            return false;
+        else {
+            return name.equalsIgnoreCase(((Role) o).getName());
+        }
+    }
 }

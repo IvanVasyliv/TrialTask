@@ -4,6 +4,6 @@ database:
   password: thisisatest
   url: jdbc:postgresql://localhost:5432/test
 logging:
-  level: INFO
+  level: WARNING
   loggers:
     com.intellias: DEBUG

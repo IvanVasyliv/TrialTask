@@ -3,12 +3,11 @@ package com.intellias.resources;
 import com.google.inject.Inject;
 import com.intellias.api.Role;
 import com.intellias.api.User;
-import com.intellias.db.RolesDAO;
-import com.intellias.db.UsersDAO;
+import com.intellias.db.RoleDAO;
+import com.intellias.db.UserDAO;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -26,39 +25,28 @@ import javax.ws.rs.core.Response.Status;
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 public class UserController {
-    private final UsersDAO usersDAO;
-    private final RolesDAO rolesDAO;
+    private final UserDAO userDAO;
+    private final RoleDAO roleDAO;
     private final Validator validator;
 
     @Inject
-    public UserController(UsersDAO usersDAO, RolesDAO rolesDAO, Validator validator) {
-        this.usersDAO = usersDAO;
-        this.rolesDAO = rolesDAO;
+    public UserController(UserDAO userDAO, RoleDAO roleDAO, Validator validator) {
+        this.userDAO = userDAO;
+        this.roleDAO = roleDAO;
         this.validator = validator;
     }
 
     @GET
     public Response listUsers() {
-        return Response.ok(usersDAO.listUsers()).build();
+        return Response.ok(userDAO.listUsers()).build();
     }
 
     @GET
     @Path("/{id}")
     public Response getUserById(@PathParam("id") long id) {
-        User user = usersDAO.getUserById(id);
+        User user = userDAO.getUserById(id);
         if (user != null) {
             return Response.ok(user).build();
-        } else {
-            return Response.status(Status.NOT_FOUND).build();
-        }
-    }
-
-    @GET
-    @Path("/{id}/roles/")
-    public Response getUserRoles(@PathParam("id") Integer id) {
-        List<Role> roles = rolesDAO.listUserRoles(id);
-        if (!roles.isEmpty()) {
-            return Response.ok(roles).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -74,14 +62,25 @@ public class UserController {
             }
             return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
         }
-        long id = usersDAO.insertUser(user);
+        long id = userDAO.insertUser(user);
+        // If the user that is sent has roles, properly add them to the database.
+        // If a role with this name is already registered to the user, no action is taken.
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            roleDAO.insertUserRoles(id, user.getRoles().toArray(new Role[0]));
+        }
         return Response.created(new URI(Long.toString(id))).build();
     }
 
     @POST
+    @Path("/{id}/role")
+    public Response grantUserRole(@PathParam("id") long id, Role role) {
+        return grantUserRoles(id, role);
+    }
+
+    @POST
     @Path("/{id}/roles")
-    public Response grantRoles(@PathParam("id") long id, Role... roles) {
-        if (usersDAO.userExists(id)) {
+    public Response grantUserRoles(@PathParam("id") long id, Role... roles) {
+        if (!userDAO.userExists(id)) {
             return Response.status(Status.NOT_FOUND).build();
         }
         for (Role role : roles) {
@@ -94,14 +93,14 @@ public class UserController {
                 return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
             }
         }
-        rolesDAO.insertUserRoles(id, roles);
-        return Response.accepted().entity(usersDAO.getUserById(id)).build();
+        roleDAO.insertUserRoles(id, roles);
+        return Response.accepted().entity(userDAO.getUserById(id)).build();
     }
 
     @PUT
     @Path("/{id}")
     public Response updateUserById(@PathParam("id") long id, User user) {
-        if (!usersDAO.userExists(id)) {
+        if (!userDAO.userExists(id)) {
             return Response.status(Status.NOT_FOUND).build();
         }
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -112,16 +111,17 @@ public class UserController {
             }
             return Response.status(Status.BAD_REQUEST).entity(validationMessages).build();
         }
+        // The id of the received user will be overwritten.
         user.setId(id);
-        usersDAO.updateUser(user);
+        userDAO.updateUser(user);
         return Response.accepted().entity(user).build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response removeUserById(@PathParam("id") Integer id) {
-        if (usersDAO.userExists(id)) {
-            usersDAO.deleteUser(id);
+        if (userDAO.userExists(id)) {
+            userDAO.deleteUser(id);
             return Response.accepted().build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
