@@ -3,7 +3,11 @@ database:
   user: tester
   password: thisisatest
   url: jdbc:postgresql://localhost:5432/test
+server:
+  type: default
+  maxThreads: 128
+  minThreads: 4
 logging:
-  level: WARNING
+  level: WARN
   loggers:
     com.intellias: DEBUG

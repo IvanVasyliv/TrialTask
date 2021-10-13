@@ -6,22 +6,58 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <name>TrialTask</name>
     <groupId>com.intellias</groupId>
     <artifactId>trial</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
-    <name>TrialTask</name>
+    <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <dropwizard.version>2.0.21</dropwizard.version>
-        <mainClass>com.intellias.TrialTaskApplication</mainClass>
+        <mainClass>TrialTaskApplication</mainClass>
+
+        <dropwizard.version>2.0.25</dropwizard.version>
+        <jdbi.version>3.22.0</jdbi.version>
+        <feign.version>11.5</feign.version>
+        <guice.version>5.0.1</guice.version>
+        <lombok.version>1.18.22</lombok.version>
+        <postgres.version>42.2.24.jre7</postgres.version>
+        <junit.version>5.8.1</junit.version>
+
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
+    <modules>
+        <module>app</module>
+        <module>model</module>
+        <module>dao</module>
+        <module>client</module>
+    </modules>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.intellias</groupId>
+                <artifactId>trial-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.intellias</groupId>
+                <artifactId>trial-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.intellias</groupId>
+                <artifactId>trial-dao</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.intellias</groupId>
+                <artifactId>trial-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-dependencies</artifactId>
@@ -33,87 +69,44 @@
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-bom</artifactId>
                 <type>pom</type>
-                <version>3.22.0</version>
+                <version>${jdbi.version}</version>
                 <scope>import</scope>
-              </dependency>
+            </dependency>
             <dependency>
-                <groupId>ru.vyarus</groupId>
-                <artifactId>dropwizard-guicey</artifactId>
-                <version>5.3.0</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>${guice.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.github.openfeign</groupId>
                 <artifactId>feign-bom</artifactId>
-                <version>11.5</version>
+                <version>${feign.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgres.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>ru.vyarus</groupId>
-            <artifactId>dropwizard-guicey</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ru.vyarus.guicey</groupId>
-            <artifactId>guicey-jdbi3</artifactId>
-            <version>5.3.0-1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-jdbi3</artifactId>
-            <version>2.1.0-beta.4</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>5.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guice</artifactId>
-            <version>3.22.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgres</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.2.24.jre7</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

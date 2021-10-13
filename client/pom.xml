@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>trial</artifactId>
+        <groupId>com.intellias</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>trial-client</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.intellias</groupId>
+            <artifactId>trial-model</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intellias</groupId>
+            <artifactId>trial-dao</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.intellias</groupId>
+            <artifactId>trial-app</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
