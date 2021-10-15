@@ -13,7 +13,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import lombok.RequiredArgsConstructor;
 
 @Path("/roles")
@@ -32,41 +31,26 @@ public class RoleController {
     @Path("/{id}")
     public Response getRole(@PathParam("id") long id) {
         Role role = roleService.getRole(id);
-        if (role != null) {
-            return Response.ok(role).build();
-        } else {
-            return Response.status(Status.NOT_FOUND).build();
-        }
+        return Response.ok(role).build();
     }
 
     @GET
     @Path("/{id}/roles/")
     public Response getUserRoles(@PathParam("id") long id) {
         List<Role> roles = roleService.getUserRoles(id);
-        if (roles!=null) {
-            return Response.ok(roles).build();
-        } else {
-            return Response.status(Status.NOT_FOUND).build();
-        }
+        return Response.ok(roles).build();
     }
 
     @PUT
     @Path("/{id}")
     public Response updateRole(@PathParam("id") long id, @Valid Role newRole) {
         Role role = roleService.updateRole(id, newRole);
-        if (role == null) {
-            return Response.status(Status.NOT_FOUND).build();
-        }
         return Response.accepted().entity(newRole).build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response removeUserById(@PathParam("id") long id) {
-        if (roleService.deleteRole(id)) {
-            return Response.accepted().build();
-        } else {
-            return Response.status(Status.NOT_FOUND).build();
-        }
+        return Response.accepted().build();
     }
 }

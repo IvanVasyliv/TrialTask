@@ -5,7 +5,9 @@ import com.intellias.dao.RoleDAO;
 import com.intellias.dao.UserDAO;
 import com.intellias.model.Role;
 import com.intellias.model.User;
+import com.intellias.service.exception.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(onConstructor_ = @Inject)
@@ -15,7 +17,7 @@ public class UserService {
     private final RoleDAO roleDAO;
 
     public User getUser(long id) {
-        return userDAO.getUserById(id);
+        return userDAO.getUserById(id).orElseThrow(() -> new EntityNotFoundException(User.class));
     }
 
     public List<User> getAllUsers() {
@@ -23,40 +25,37 @@ public class UserService {
     }
 
     public long createUser(User user) {
-        if (user.getId() == -1) {
-            // Because only new Users get an id of -1, there's no sense in upserting.
-            return userDAO.insertUser(user).getId();
-        } else {
-            User oldUser = userDAO.getUserById(user.getId());
-            if (oldUser != null && oldUser.getRoles() != user.getRoles()) {
-                updateUserRoles(oldUser, user);
+        if (user.getId() != null) {
+            Optional<User> oldUser = userDAO.getUserById(user.getId());
+            if (oldUser.isPresent() && oldUser.get().getRoles() != user.getRoles()) {
+                updateUserRoles(oldUser.get(), user);
             }
-            return userDAO.upsertUser(user).getId();
+            return userDAO.upsertUser(user);
+        } else {
+            return userDAO.insertUser(user);
         }
     }
 
     public User updateUser(long id, User user) {
-        if (!userDAO.userExists(id))
-            return null;
         user.setId(id);
-        if (!user.getRoles().isEmpty()) {
-            updateUserRoles(userDAO.getUserById(id), user);
-        }
-        return userDAO.upsertUser(user);
+        updateUserRoles(getUser(id), user);
+        //noinspection OptionalGetWithoutIsPresent
+        return userDAO.getUserById(userDAO.upsertUser(user)).get();
     }
 
     public boolean deleteUser(long id){
         if (!userDAO.userExists(id))
-            return false;
+            throw new EntityNotFoundException(User.class);
         userDAO.deleteUser(id);
         return true;
     }
 
     public User grantRoles(long id, Role... roles) {
         if (!userDAO.userExists(id))
-            return null;
+            throw new EntityNotFoundException(User.class);
         roleDAO.upsertUserRoles(id, roles);
-        return userDAO.getUserById(id);
+        //noinspection OptionalGetWithoutIsPresent
+        return userDAO.getUserById(id).get();
     }
 
     private void updateUserRoles(User oldUser, User newUser) {

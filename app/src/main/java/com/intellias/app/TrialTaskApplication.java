@@ -2,6 +2,7 @@ package com.intellias.app;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.intellias.app.exception.NotFoundExceptionMapper;
 import com.intellias.app.resource.RoleController;
 import com.intellias.app.resource.UserController;
 import io.dropwizard.Application;
@@ -35,6 +36,6 @@ public class TrialTaskApplication extends Application<TrialTaskConfiguration> {
         Injector injector = Guice.createInjector(new TaskModule(jdbi));
         e.jersey().register(injector.getInstance(UserController.class));
         e.jersey().register(injector.getInstance(RoleController.class));
-
+        e.jersey().register(NotFoundExceptionMapper.class);
     }
 }

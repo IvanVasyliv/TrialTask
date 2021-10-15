@@ -11,9 +11,7 @@ import org.hibernate.validator.constraints.Length;
 @Data
 @NoArgsConstructor
 public class User {
-
-    // Since PostgreSQL generates ids starting from 0.
-    private long id = -1;
+    private Long id;
     @NotNull
     @NotBlank
     @Length(min = 2, max = 30)

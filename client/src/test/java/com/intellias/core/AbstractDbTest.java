@@ -13,10 +13,13 @@ public abstract class AbstractDbTest {
 
     @BeforeAll
     public static void createTables() {
-        Jdbi jdbi = Jdbi.create("jdbc:postgresql://localhost:5432/test?user=tester&password=thisisatest");
+        Jdbi jdbi = Jdbi.create(
+                "jdbc:postgresql://localhost:5432/test?user=tester&password=thisisatest");
         jdbi.installPlugin(new SqlObjectPlugin())
                 .installPlugin(new PostgresPlugin());
-        userDAO = jdbi.onDemand(UserDAO.class);
-        roleDAO = jdbi.onDemand(RoleDAO.class);
+        jdbi.useHandle(handle -> {
+            handle.createUpdate("DELETE FROM roles");
+            handle.createUpdate("DELETE FROM users CASCADE");
+        });
     }
 }

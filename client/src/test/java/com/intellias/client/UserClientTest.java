@@ -12,6 +12,7 @@ import feign.Response;
 import feign.codec.ErrorDecoder;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
+import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,14 +31,15 @@ public class UserClientTest extends AbstractDbTest {
 
     @BeforeAll
     public static void startServer() throws Exception {
-        new TrialTaskApplication().run("server", "config.yml");
+        new TrialTaskApplication().run("server",
+                Path.of(System.getProperty("user.dir")).getParent().toString() + "/config.yml");
     }
 
     @Test
     public void createTest() {
         User sendUser = new User("Alice");
-        sendUser.setId(1);
-        sendUser.setRoles(List.of(new Role[]{new Role("admin"), new Role("user")}));
+        sendUser.setId(1L);
+        sendUser.setRoles(List.of(new Role[]{new Role("ADMIN"), new Role("USER")}));
         userClient.create(sendUser);
         User receiveUser = userClient.getById(1);
         assertEquals (receiveUser.getName(), sendUser.getName());
@@ -60,8 +62,10 @@ public class UserClientTest extends AbstractDbTest {
     @Test
     public void deleteTest() {
         //Creating a new user in case there are none in the database
-        userClient.create(new User("Frank"));
-        int id = 0;
+        User newUser = new User("Frank");
+        long id = 2L;
+        newUser.setId(id);
+        userClient.create(newUser);
         assert (userClient.getById(id) != null);
         userClient.delete(id);
         assertThrows (NotFoundException.class, () -> userClient.getById(id));
