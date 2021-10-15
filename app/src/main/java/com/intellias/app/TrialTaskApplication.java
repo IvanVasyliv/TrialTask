@@ -8,7 +8,6 @@ import io.dropwizard.Application;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import javax.sql.DataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +15,6 @@ import org.slf4j.LoggerFactory;
 public class TrialTaskApplication extends Application<TrialTaskConfiguration> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrialTaskApplication.class);
-    private DataSource dataSource;
-
-
-    public TrialTaskApplication() {
-    }
 
     public static void main(final String[] args) throws Exception {
         new TrialTaskApplication().run(args);
@@ -41,5 +35,6 @@ public class TrialTaskApplication extends Application<TrialTaskConfiguration> {
         Injector injector = Guice.createInjector(new TaskModule(jdbi));
         e.jersey().register(injector.getInstance(UserController.class));
         e.jersey().register(injector.getInstance(RoleController.class));
+
     }
 }

@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <mainClass>TrialTaskApplication</mainClass>
+        <mainClass>com.intellias.app.TrialTaskApplication</mainClass>
 
         <dropwizard.version>2.0.25</dropwizard.version>
         <jdbi.version>3.22.0</jdbi.version>
@@ -34,7 +34,9 @@
         <module>model</module>
         <module>dao</module>
         <module>client</module>
+        <module>service</module>
     </modules>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -55,6 +57,11 @@
             <dependency>
                 <groupId>com.intellias</groupId>
                 <artifactId>trial-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.intellias</groupId>
+                <artifactId>trial-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

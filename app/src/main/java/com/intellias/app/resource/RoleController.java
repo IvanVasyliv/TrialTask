@@ -1,8 +1,7 @@
 package com.intellias.app.resource;
 
-import com.intellias.dao.RoleDAO;
-import com.intellias.dao.UserDAO;
 import com.intellias.model.Role;
+import com.intellias.service.RoleService;
 import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -22,18 +21,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(onConstructor_ = @Inject)
 public class RoleController {
 
-    private final UserDAO userDAO;
-    private final RoleDAO roleDAO;
+    private final RoleService roleService;
 
     @GET
     public Response listRoles() {
-        return Response.ok(roleDAO.listRoles()).build();
+        return Response.ok(roleService.getAllRoles()).build();
     }
 
     @GET
     @Path("/{id}")
     public Response getRole(@PathParam("id") long id) {
-        Role role = roleDAO.getRoleById(id);
+        Role role = roleService.getRole(id);
         if (role != null) {
             return Response.ok(role).build();
         } else {
@@ -44,8 +42,8 @@ public class RoleController {
     @GET
     @Path("/{id}/roles/")
     public Response getUserRoles(@PathParam("id") long id) {
-        if (userDAO.userExists(id)) {
-            List<Role> roles = roleDAO.listUserRoles(id);
+        List<Role> roles = roleService.getUserRoles(id);
+        if (roles!=null) {
             return Response.ok(roles).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
@@ -55,20 +53,17 @@ public class RoleController {
     @PUT
     @Path("/{id}")
     public Response updateRole(@PathParam("id") long id, @Valid Role newRole) {
-        Role role = roleDAO.getRoleById(id);
-        if (role != null) {
+        Role role = roleService.updateRole(id, newRole);
+        if (role == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        newRole.setId(id);
-        roleDAO.updateRole(newRole);
         return Response.accepted().entity(newRole).build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response removeUserById(@PathParam("id") long id) {
-        if (roleDAO.getRoleById(id) != null) {
-            roleDAO.deleteRole(id);
+        if (roleService.deleteRole(id)) {
             return Response.accepted().build();
         } else {
             return Response.status(Status.NOT_FOUND).build();

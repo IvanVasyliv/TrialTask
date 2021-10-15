@@ -19,6 +19,7 @@
             <groupId>com.intellias</groupId>
             <artifactId>trial-model</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-guice</artifactId>

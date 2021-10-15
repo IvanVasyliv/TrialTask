@@ -16,10 +16,11 @@ public interface UserDAO {
     @SqlUpdate("INSERT INTO users(id, name) VALUES (:id, :name) "
             + "ON CONFLICT ON CONSTRAINT users_pkey DO UPDATE SET name=:name")
     @GetGeneratedKeys
-    long upsertUser(@BindBean User user);
+    User upsertUser(@BindBean User user);
 
-    @SqlUpdate("UPDATE users SET name=:name WHERE id=:id")
-    void updateUser(@BindBean User user);
+    @SqlUpdate("INSERT INTO users(name) VALUES (:name)")
+    @GetGeneratedKeys
+    User insertUser(@BindBean User user);
 
     @SqlUpdate("DELETE FROM users WHERE id=:id")
     void deleteUser(@Bind("id") long id);

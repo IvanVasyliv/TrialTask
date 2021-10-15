@@ -2,8 +2,7 @@ package com.intellias.app.resource;
 
 import com.intellias.model.Role;
 import com.intellias.model.User;
-import com.intellias.dao.RoleDAO;
-import com.intellias.dao.UserDAO;
+import com.intellias.service.UserService;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.inject.Inject;
@@ -25,18 +24,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(onConstructor_ = @Inject)
 public class UserController {
 
-    private final UserDAO userDAO;
-    private final RoleDAO roleDAO;
+    private final UserService userService;
 
     @GET
     public Response listUsers() {
-        return Response.ok(userDAO.listUsers()).build();
+        return Response.ok(userService.getAllUsers()).build();
     }
 
     @GET
     @Path("/{id}")
     public Response getUserById(@PathParam("id") long id) {
-        User user = userDAO.getUserById(id);
+        User user = userService.getUser(id);
         if (user != null) {
             return Response.ok(user).build();
         } else {
@@ -46,48 +44,40 @@ public class UserController {
 
     @POST
     public Response createUser(@Valid User user) throws URISyntaxException {
-        long id = userDAO.upsertUser(user);
-        // If the user that is sent has roles, properly add them to the database.
-        // If a role with this name is already registered to the user, no action is taken.
-        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
-            roleDAO.upsertUserRoles(id, user.getRoles().toArray(new Role[0]));
-        }
+        long id = userService.createUser(user);
         return Response.created(new URI(Long.toString(id))).build();
     }
 
     @POST
     @Path("/{id}/role")
-    public Response grantUserRole(@PathParam("id") long id, Role role) {
+    public Response grantUserRole(@PathParam("id") long id, @Valid Role role) {
         return grantUserRoles(id, role);
     }
 
     @POST
     @Path("/{id}/roles")
     public Response grantUserRoles(@PathParam("id") long id, Role... roles) {
-        if (!userDAO.userExists(id)) {
+        User updatedUser = userService.grantRoles(id, roles);
+        if (updatedUser == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        roleDAO.upsertUserRoles(id, roles);
-        return Response.accepted().entity(userDAO.getUserById(id)).build();
+        return Response.accepted().entity(updatedUser).build();
     }
 
     @PUT
     @Path("/{id}")
-    public Response updateUserById(@PathParam("id") long id, User user) {
-        if (!userDAO.userExists(id)) {
+    public Response updateUserById(@PathParam("id") long id, @Valid User user) {
+        User updatedUser = userService.updateUser(id, user);
+        if (updatedUser == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        // The id of the received user will be overwritten.
-        user.setId(id);
-        userDAO.updateUser(user);
-        return Response.accepted().entity(user).build();
+        return Response.accepted().entity(updatedUser).build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response removeUserById(@PathParam("id") Integer id) {
-        if (userDAO.userExists(id)) {
-            userDAO.deleteUser(id);
+        if (userService.deleteUser(id)) {
             return Response.accepted().build();
         } else {
             return Response.status(Status.NOT_FOUND).build();

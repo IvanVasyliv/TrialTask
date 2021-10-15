@@ -17,11 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>com.intellias</groupId>
-            <artifactId>trial-model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.intellias</groupId>
-            <artifactId>trial-dao</artifactId>
+            <artifactId>trial-service</artifactId>
         </dependency>
 
         <dependency>
